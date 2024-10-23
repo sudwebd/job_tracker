@@ -1,0 +1,150 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Tech Job Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .job-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .job-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .job-title {
+            font-size: 1.2em;
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .job-company {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .job-meta {
+            display: flex;
+            gap: 20px;
+            color: #95a5a6;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        
+        .apply-button {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .apply-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .save-button {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .save-button:hover {
+            background-color: #c0392b;
+        }
+        
+        .saved {
+            background-color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Remote Tech Job Tracker</h1>
+        </div>
+        
+        <div class="job-list">
+            {% for job in jobs %}
+            <div class="job-card">
+                <h2 class="job-title">{{ job.title }}</h2>
+                <div class="job-company">{{ job.company }}</div>
+                <div class="job-meta">
+                    <span>{{ job.location }}</span>
+                    <span>Posted: {{ job.posted_date }}</span>
+                    <span>Source: {{ job.source }}</span>
+                </div>
+                <div class="job-actions">
+                    <a href="{{ job.url }}" target="_blank" class="button apply-button">
+                        Apply Now
+                    </a>
+                    <button 
+                        onclick="toggleSave('{{ job.id }}')" 
+                        class="button save-button {% if job.saved %}saved{% endif %}"
+                        data-job-id="{{ job.id }}"
+                    >
+                        {% if job.saved %}Saved{% else %}Save Job{% endif %}
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function toggleSave(jobId) {
+            const button = document.querySelector(`button[data-job-id="${jobId}"]`);
+            const isSaved = button.classList.contains('saved');
+            
+            const url = isSaved ? `/unsave_job/${jobId}` : `/save_job/${jobId}`;
+            
+            fetch(url, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    button.classList.toggle('saved');
+                    button.textContent = isSaved ? 'Save Job' : 'Saved';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
